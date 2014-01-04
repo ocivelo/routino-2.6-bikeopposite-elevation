@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- ============================================================
+     An XML format file containing Routino tagging rules - copy the input file
+     directly to the output with no modifications.
+
+     Part of the Routino routing software.
+     ============================================================
+     This file Copyright 2010-2013 Andrew M. Bishop
+
+     This program is free software: you can redistribute it and/or modify
+     it under the terms of the GNU Affero General Public License as published by
+     the Free Software Foundation, either version 3 of the License, or
+     (at your option) any later version.
+     ============================================================ -->
+
+<routino-tagging xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:noNamespaceSchemaLocation="http://www.routino.org/xml/routino-tagging.xsd">
+
+  <!-- - - - - - - - - - - Node rules - - - - - - - - - - -->
+
+  <node>
+
+    <!-- Add a marker for those nodes that match the wanted tag(s) -->
+
+    <if k="fixme">
+      <output k="fixme-finder:keep" v="yes" />
+    </if>
+
+    <!-- Copy all tags from input to output -->
+
+    <if>
+      <output />
+    </if>
+
+  </node>
+
+  <!-- - - - - - - - - - - Way rules - - - - - - - - - - -->
+
+  <way>
+
+    <!-- Add a marker for those ways that match the wanted tag(s) -->
+
+    <if k="fixme">
+      <output k="fixme-finder:keep" v="yes" />
+    </if>
+
+    <!-- Copy all tags from input to output -->
+
+    <if>
+      <output />
+    </if>
+
+  </way>
+
+  <!-- - - - - - - - - - - Relation rules - - - - - - - - - - -->
+
+  <relation>
+
+    <!-- Add a marker for those relations that match the wanted tag(s) -->
+
+    <if k="fixme">
+      <output k="fixme-finder:keep" v="yes" />
+    </if>
+
+    <!-- Copy all tags from input to output -->
+
+    <if>
+      <output />
+    </if>
+
+  </relation>
+
+</routino-tagging>

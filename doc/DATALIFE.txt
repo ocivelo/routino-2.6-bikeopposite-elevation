@@ -1,0 +1,85 @@
+                                Planetsplitter Data Lifetime
+                                ============================
+
+Key (memory mapping):
+  nswr = Mapped into memory read-only
+  NSWR = Mapped into memory read/write
+
+Key (structure parameter usage):
+  C = Created (allocated; write-only)
+  D = Destroyed (de-allocated; read-only)
+  U = Used (read only)
+  R = Replaced (not used; write-only)
+  M = Modified (used and replaced; read and write)
+  | = Preserved unmodified for later
+  * = Applies to super-segments
+
+                              .............................
+                              : Nodes        \
+                              : |Segments     | Mapped into
+                              : ||Ways        | memory
+                              : |||Relations /
+                              : |||| ...........................
+                              : vvvv : nodesx->idata
+                              :      : | . nodesx->gdata
+                              :      : | . | . nodesx->pdata
+                              :      : | . | . | . nodesx->super
+                              :      : | . | . | . | . nodex->id
+                              :      : | . | . | . | . | ...................................
+                              :      : v . v . v . v . v : segmentsx->firstnode
+                              :      :   .   .   .   .   : | . segmentsx->next1
+                              :      :   .   .   .   .   : | . | . segmentsx->usedway
+                              :      :   .   .   .   .   : | . | . | . segmentx->node1,2
+                              :      :   .   .   .   .   : | . | . | . | . segmentx->next2
+                              :      :   .   .   .   .   : | . | . | . | . | . segmentx->way
+                              :      :   .   .   .   .   : | . | . | . | . | . | ..................
+                              :      :   .   .   .   .   : v . v . v . v . v . v : waysx->idata
+                              :      :   .   .   .   .   :   .   .   .   .   .   : | . waysx->cdata
+                              :      :   .   .   .   .   :   .   .   .   .   .   : | . | . wayx->id
+                              :      :   .   .   .   .   :   .   .   .   .   .   : | . | . | ...............
+Function name (in order)      :      :   .   .   .   .   :   .   .   .   .   .   : v . v . v : relationx->id
+|                             :      :   .   .   .   .   :   .   .   .   .   .   :   .   .   : | ...........
+v                             :      :   .   .   .   .   :   .   .   .   .   .   :   .   .   : v :
+                              :......:...................:.......................:...........:...:
+SortNodeList                  :      : C .   .   .   . U :   .   .   .   .   .   :   .   . | : | :
+SortWayList                   :      : | .   .   .   . | :   .   .   .   .   .   : C .   . | : | :
+SortRelationList              :      : | .   .   .   . | :   .   .   .   .   .   : | .   . | : U :
+RemoveNonHighwayNodes         :      : M .   .   .   . U :   .   .   .   .   .   : | .   . | : | :
+SplitWays                     :      : U .   .   .   . | :   .   .   . C .   . C : | .   . U : | :
+SortWayNames                  :   W  : | .   .   .   . | :   .   .   . | .   . | : | .   . | : | :
+SortSegmentList               :      : | .   .   .   . | :   .   .   . U .   . | : | .   . | : | :
+ProcessSegments               : n w  : | .   .   .   . U :   .   . C . U .   . U : | .   . U : | :
+IndexSegments                 :  S   : | .   .   .   .   : C .   . | . U . C . | : | .   . | : | :
+ProcessRouteRelations         :   W  : | .   .   .   .   : | .   . | . | . | . | : U .   . | : U :
+ProcessTurnRelations          : Nsw  : D .   .   .   .   : U .   . | . U . U . | : D .   . | : U :
+CompactWayList                :      :   .   .   .   .   :   .   . D . | .   . | :   . C . M :   :
+IndexSegments                 :  S   :   .   .   .   .   : R .   .   . U . R . M :   . D . | :   :
+                              :......:...................:.......................:...........:...:
+StartPruning                  :      :   .   .   .   .   : | . C .   . U . U . | :   .   . | :   : \
+PruneStraightHighwayNodes     : nSw  :   .   .   .   .   : U . U .   . U . U . | :   .   . | :   :  | O
+PruneIsolatedRegions          : nSw  :   .   .   .   .   : U . U .   . U . U . | :   .   . | :   :  | p
+PruneShortSegments            : NSw  :   .   .   .   .   : U . U .   . U . U . | :   .   . | :   :  | t
+FinishPruning                 :      :   .   .   .   .   : | . D .   . | .   . | :   .   . | :   :  | i
+RemovePrunedNodes             :      :   .   . C .   .   : U .   .   . | .   . | :   .   . | :   :  | o
+RemovePrunedSegments          :      :   .   . | .   .   :   .   . C . U .   . | :   .   . | :   :  | n
+CompactWayList                :      :   .   . | .   .   :   .   . D . | .   . | :   . C . M :   :  | a
+RemovePrunedTurnRelations     :      :   .   . U .   .   :   .   .   . | .   . | :   . | .   :   :  | l
+IndexSegments                 :  S   :   .   . D .   .   : R .   .   . M . R . | :   . D .   :   : /
+                              :......:...................:.......................:...........:...:
+ChooseSuperNodes              :  sw  :   .   .   . M .   : U .   .   . | . U*. | :   .   .   :   : <-+ L
+CreateSuperSegments           : nsw  :   .   .   . U .   : U .   .   . R*. U*. | :   .   .   :   :   | o
+DeduplicateSuperSegments      :   w  :   .   .   . | .   :   .   .   . U*.   . | :   .   .   :   :   | o
+IndexSegments                 :  S   :   .   .   . | .   : C*.   .   . U*. C*. | :   .   .   :   :   | p
+                              :......:...................:.......................:...........:...: --+
+MergeSuperSegments            :      :   .   .   . | .   :   .   .   . U .   . | :   .   .   :   :
+                              :......:...................:.......................:...........:...:
+SortNodeListGeographically    :      :   . C .   . D . R :   .   .   . | .   . | :   .   .   :   :
+SortSegmentListGeographically :      :   . U .   .   .   :   .   .   . U .   . | :   .   .   :   :
+IndexSegments                 :  S   :   . | .   .   .   : R .   .   . U . R . | :   .   .   :   :
+SortTurnRelationListGeogra... :  s   :   . D .   .   .   : U .   .   . U . U . | :   .   .   :   :
+                              :......:...................:.......................:...........:...:
+SaveNodeList                  :      :   .   .   .   .   : D .   .   . | . | . | :   .   .   :   :
+SaveSegmentList               :      :   .   .   .   .   :   .   .   . U . U . U :   .   .   :   :
+SaveWayList                   :      :   .   .   .   .   :   .   .   .   .   .   :   .   .   :   :
+SaveRelationList              :      :   .   .   .   .   :   .   .   .   .   .   :   .   .   :   :
+                              :......:...................:.......................:...........:...:

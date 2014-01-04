@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="keywords" content="openstreetmap routino fixme">
+
+<title>Routino Extras : Viewer for OpenStreetMap "fixme" Tags</title>
+
+<!--
+ Routino (extras) fixme web page.
+
+ Part of the Routino routing software.
+
+ This file Copyright 2008-2013 Andrew M. Bishop
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see http://www.gnu.org/licenses/.
+-->
+
+<!-- OpenLayers Javascript library -->
+<script src="../openlayers/OpenLayers.js" type="text/javascript"></script>
+
+<!-- Page elements -->
+<script src="page-elements.js" type="text/javascript"></script>
+<link href="page-elements.css" type="text/css" rel="stylesheet">
+
+<!-- Router and visualiser shared features -->
+<link href="maplayout.css" type="text/css" rel="stylesheet">
+<!--[if IE 6]>
+  <link href="maplayout-ie6-bugfixes.css" type="text/css" rel="stylesheet">
+<![endif]-->
+<!--[if IE 7]>
+  <link href="maplayout-ie7-bugfixes.css" type="text/css" rel="stylesheet">
+<![endif]-->
+
+<!-- Visualiser specific features -->
+<script src="mapprops.js" type="text/javascript"></script>
+<script src="fixme.js" type="text/javascript"></script>
+<link href="fixme.css" type="text/css" rel="stylesheet">
+</HEAD>
+
+<BODY onload="map_init();">
+
+<!-- Left hand side of window - data panel -->
+
+<div class="left_panel">
+
+  <div class="tab_box">
+    <span id="tab_fixme" onclick="tab_select('fixme');" class="tab_selected"   title="View 'fixme' tags">Fixme</span>
+    <span id="tab_data"  onclick="tab_select('data');"  class="tab_unselected" title="View database information">Data</span>
+  </div>
+
+  <div class="tab_content" id="tab_fixme_div">
+
+    <div class="hideshow_box">
+      <span class="hideshow_title">OSM "fixme" Tags</span> This web page allows
+      viewing the "fixme" tags in OSM data.  It is generated using a modified
+      version of the Routino router data processor.
+      <div align="center">
+        <a target="other" href="http://www.routino.org/">Routino Website</a>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span class="hideshow_title">Instructions</span>
+      Zoom in and then use the button below to download the data.  The
+      server will only return data if the selected area is small enough.
+    </div>
+
+    <div class="hideshow_box">
+      <span class="hideshow_title">Status</span>
+      <div id="result_status">
+        <div id="result_status_no_data">
+          <b><i>No data displayed</i></b>
+        </div>
+        <div id="result_status_data"      style="display: none;">
+        </div>
+        <div id="result_status_failed"    style="display: none;">
+          <b>Failed to get fixme data!</b>
+        </div>
+        <div id="result_status_fixme"     style="display: none;">
+          <b>Processed # "fixme" tags</b>
+        </div>
+      </div>
+    </div>
+
+    <div class="hideshow_box">
+      <span class="hideshow_title">Get Data</span>
+      <input type="button" id="fixme" onclick="displayData('fixmes');" value="Display &quot;fixme&quot; tags">
+      <input type="button" id="clear" onclick="displayData('');" value="Clear data">
+      <br>
+      The points displayed on the map are the location of items in the OSM data
+      that are tagged with "fixme" = "...".  Clicking on one of the points will
+      display the Node, Way or Relation identifier and the contents of the tag.
+    </div>
+
+    <div class="hideshow_box">
+      <span class="hideshow_title">Links</span>
+      <a id="permalink_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="fixme.html">Permanent link to this view</a>
+      <br>
+      <a id="edit_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" target="edit" style="display: none;">Edit OSM source data</a>
+    </div>
+
+    <div class="hideshow_box">
+      <span id="hideshow_help_options_show" onclick="hideshow_show('help_options');" class="hideshow_hide">+</span>
+      <span id="hideshow_help_options_hide" onclick="hideshow_hide('help_options');" class="hideshow_show">-</span>
+      <span class="hideshow_title">Help</span>
+      <div id="hideshow_help_options_div">
+        <div class="scrollable">
+          <b>Quick Start</b>
+          <br>
+          Zoom to an area and select one of the buttons to display the fixme data.
+          <p>
+          <b>Data Failure</b>
+          <br>
+          If the area selected is too large (depends on the data type) then the
+          status will say "Failed to get fixme data" - zoom in and try again.
+          <br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab_content" id="tab_data_div" style="display: none;">
+    <div class="hideshow_box">
+      <span class="hideshow_title">Statistics</span>
+      <div id="statistics_data"></div>
+      <a id="statistics_link" href="statistics.cgi" onclick="displayStatistics();return(false);">Display data statistics</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- Right hand side of window - map -->
+
+<div class="right_panel">
+  <div class="map" id="map">
+    <noscript>
+      Javascript is <em>required</em> to use this web page because of the
+      interactive map.
+    </noscript>
+  </div>
+  <div class="attribution">
+    Data Generator: <a href="http://www.routino.org/" target="routino">Routino</a>
+    |
+    Geo Data: <span id="attribution_data"></span>
+    |
+    Tiles: <span id="attribution_tile"></span>
+  </div>
+</div>
+
+</BODY>
+
+</HTML>
