@@ -33,7 +33,7 @@
 
 
 /*+ To help when debugging +*/
-#define DEBUG 0
+//#define DEBUG 0
 
 
 /* Global variables */
@@ -170,7 +170,15 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        /* must obey one-way restrictions (unless profile allows) */
        if(profile->oneway && IsOnewayTo(segmentp,node1))
-          goto endloop;
+		 {
+		  if (profile->allow != Transports_Bicycle) 	 
+            goto endloop;
+		  wayp=LookupWay(ways,segmentp->way,1);
+
+		  if (!(wayp->props & Properties_DoubleSens))
+            goto endloop;
+          printf("  FindNormalRoute(...,start_node=%"Pindex_t" prev_segment=%"Pindex_t" finish_node=%"Pindex_t") props=%d  DoubleSens=%d \n",start_node,prev_segment,finish_node,wayp->props, Properties_DoubleSens);
+		 }
 
        if(IsFakeNode(node1) || IsFakeNode(node2))
          {
@@ -247,7 +255,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
+          segment_score=(score_t)Duration(node1,segmentp,wayp,profile)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 
@@ -358,7 +366,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
  int     force_uturn=0;
 
 #if DEBUG
- printf("  FindMiddleRoute(...,[begin has %d nodes],[end has %d nodes])\n",begin->number,end->number);
+ printf("  FindMiddleRoute(...,[begin has %d nodes],[end has %d nodes] finish_node=%"Pindex_t " )\n",begin->number,end->number,end->finish_node);
 #endif
 
 #if !DEBUG
@@ -463,6 +471,10 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
     index_t node1,seg1;
     index_t turnrelation=NO_RELATION;
 
+#if DEBUG
+   printf("A Pop result1->node=%"Pindex_t" seg1=%"Pindex_t" score=%f finish_score=%f \n",result1->node,result1->segment,result1->score,finish_score);
+#endif
+
     /* score must be better than current best score */
     if(result1->score>=finish_score)
        continue;
@@ -494,7 +506,16 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        /* must obey one-way restrictions (unless profile allows) */
        if(profile->oneway && IsOnewayTo(segmentp,node1))
-          goto endloop;
+		 {
+		  if (profile->allow != Transports_Bicycle) 	 
+            goto endloop;
+		  wayp=LookupWay(ways,segmentp->way,1);
+		  if (!(wayp->props & Properties_DoubleSens))
+            goto endloop;
+#if DEBUG
+          printf("B  FindMiddleRoute() node1=%"Pindex_t" node2=%"Pindex_t" props=%d  DoubleSens=%d \n",segmentp->node1,segmentp->node2,wayp->props, Properties_DoubleSens);
+#endif
+		}
 
        seg2=IndexSegment(segments,segmentp); /* segment cannot be a fake segment (must be a super-segment) */
 
@@ -559,14 +580,20 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
+          segment_score=(score_t)Duration(node1,segmentp,wayp,profile)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
-
+#if DEBUG
+   printf("BTestsok   node1=%"Pindex_t" node2=%"Pindex_t" seg2=%"Pindex_t" dist=%08x segment_pref=%f segment_score=%f cumulative_score=%f finish_score=%f\n",node1,node2,seg2,DISTANCE(segmentp->distance),segment_pref,segment_score,cumulative_score,finish_score);
+#endif
        /* score must be better than current best score */
        if(cumulative_score>=finish_score)
+         {
+#if DEBUG
+   printf("Bcum>finish    segmentp->node1=%"Pindex_t" node2=%"Pindex_t" seg1=%"Pindex_t" seg2=%"Pindex_t"\n",segmentp->node1,segmentp->node2,seg1,seg2);
+#endif			 
           goto endloop;
-
+         }
        result2=FindResult(results,node2,seg2);
 
        if(!result2) /* New end node/segment pair */
@@ -581,15 +608,25 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
           result2->score=cumulative_score;
          }
        else
+         {
+#if DEBUG
+   printf("Bcum>=score prec  result2->node=%"Pindex_t" seg=%"Pindex_t" result2->score=%f cumulative_score=%f\n",result2->node,result2->segment,result2->score,cumulative_score);
+#endif
           goto endloop;
-
+         }
        if((result3=FindResult(end,node2,seg2)))
          {
+#if DEBUG
+   printf("Cend    result3->node=%"Pindex_t" seg=%"Pindex_t" score=%f result2->node=%"Pindex_t "seg=%"Pindex_t" score=%f finish_score=%f\n",result3->node,result3->segment,result3->score,result2->node,result2->segment,result2->score,finish_score);
+#endif
           if((result2->score+result3->score)<finish_score)
             {
              finish_score=result2->score+result3->score;
              finish_result=result2;
-            }
+#if DEBUG
+   printf("Cend    finish_result->node=%"Pindex_t" seg=%"Pindex_t" finish_score=%f\n",finish_result->node,finish_result->segment,finish_score);
+#endif
+            }           
          }
        else
          {
@@ -605,6 +642,9 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
              potential_score=result2->score+(score_t)direct/profile->max_pref;
           else
              potential_score=result2->score+(score_t)distance_speed_to_duration(direct,profile->max_speed)/profile->max_pref;
+#if DEBUG
+   printf("Cpot    result2->node=%"Pindex_t "seg=%"Pindex_t" potential_score=%f <? finish_score=%f\n",result2->node,result2->segment,potential_score,finish_score);
+#endif
 
           if(potential_score<finish_score)
              InsertInQueue(queue,result2,potential_score);
@@ -809,8 +849,11 @@ static Results *FindSuperRoute(Nodes *nodes,Segments *segments,Ways *ways,Relati
 
        /* must obey one-way restrictions */
        if(IsOnewayTo(segmentp,node1))
+         {
+ printf("    FindSuperRoute(...,start_node=%"Pindex_t" finish_node=%"Pindex_t") IsOnewayTo\n",start_node,finish_node);
+			 
           goto endloop;
-
+         }
        seg2=IndexSegment(segments,segmentp);
 
        /* must not perform U-turn */
@@ -973,7 +1016,14 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
 
        /* must obey one-way restrictions (unless profile allows) */
        if(profile->oneway && IsOnewayTo(segmentp,node1))
-          goto endloop;
+		 {
+		  if (profile->allow != Transports_Bicycle) 	 
+            goto endloop;
+		  wayp=LookupWay(ways,segmentp->way,1);
+		  if (!(wayp->props & Properties_DoubleSens))
+            goto endloop;
+ printf("  FindStartRoutes(...,start_node=%"Pindex_t" prev_segment=%"Pindex_t" finish_node=%"Pindex_t") props=%d DoubleSens=%d\n",start_node,prev_segment,finish_node,wayp->props,Properties_DoubleSens);
+		 }
 
        if(IsFakeNode(node1) || IsFakeNode(node2))
          {
@@ -1046,7 +1096,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
+          segment_score=(score_t)Duration(node1,segmentp,wayp,profile)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 
@@ -1268,7 +1318,14 @@ Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations 
 
        /* must obey one-way restrictions (unless profile allows) */
        if(profile->oneway && IsOnewayTo(segmentp,node1))
-          goto endloop;
+		 {
+		  if (profile->allow != Transports_Bicycle) 	 
+            goto endloop;
+		  wayp=LookupWay(ways,segmentp->way,1);
+		  if (!(wayp->props & Properties_DoubleSens))
+            goto endloop;
+printf("  ExtendStartRoutes(...,[begin has %d nodes],finish_node=%"Pindex_t") props=%d DoubleSens=%d\n",begin->number,finish_node, wayp->props,Properties_DoubleSens);
+		 }
 
        if(IsFakeNode(node1) || IsFakeNode(node2))
          {
@@ -1334,7 +1391,7 @@ Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations 
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
+          segment_score=(score_t)Duration(node1,segmentp,wayp,profile)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 
@@ -1492,7 +1549,14 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
 
        /* must obey one-way restrictions (unless profile allows) */
        if(profile->oneway && IsOnewayFrom(segmentp,node1)) /* working backwards => disallow oneway *from* node1 */
-          goto endloop;
+		 {
+		  if (profile->allow != Transports_Bicycle) 	 
+            goto endloop;
+		  wayp=LookupWay(ways,segmentp->way,1);
+		  if (!(wayp->props & Properties_DoubleSens))
+            goto endloop;
+		  printf("  FindFinishRoutes(...,finish_node=%"Pindex_t") props=%d DoubleSens=%d\n",finish_node,wayp->props,Properties_DoubleSens);
+		 }
 
        node2=OtherNode(segmentp,node1);
 
@@ -1565,7 +1629,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(segmentp,wayp,profile)/segment_pref;
+          segment_score=(score_t)Duration(node2,segmentp,wayp,profile)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 

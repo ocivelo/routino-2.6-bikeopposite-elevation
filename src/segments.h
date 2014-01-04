@@ -48,6 +48,11 @@ struct _Segment
  index_t    way;                /*+ The index of the way associated with the segment. +*/
 
  distance_t distance;           /*+ The distance between the nodes. +*/
+ 
+ float ascent;
+ float descent;
+ float ascentOn;
+ float descentOn;
 };
 
 
@@ -95,7 +100,7 @@ index_t FindClosestSegmentHeading(Nodes *nodes,Segments *segments,Ways *ways,ind
 
 distance_t Distance(double lat1,double lon1,double lat2,double lon2);
 
-duration_t Duration(Segment *segmentp,Way *wayp,Profile *profile);
+duration_t Duration(index_t node,Segment *segmentp,Way *wayp,Profile *profile);
 
 double TurnAngle(Nodes *nodes,Segment *segment1p,Segment *segment2p,index_t node);
 double BearingAngle(Nodes *nodes,Segment *segmentp,index_t node);

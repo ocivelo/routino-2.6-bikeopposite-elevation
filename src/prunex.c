@@ -1288,10 +1288,20 @@ static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newno
 
     if(segmentx->distance&(ONEWAY_2TO1|ONEWAY_1TO2))
        segmentx->distance^=ONEWAY_2TO1|ONEWAY_1TO2;
+    if(segmentx->distance&(INCLINEUP_2TO1|INCLINEUP_1TO2))
+       segmentx->distance^=INCLINEUP_2TO1|INCLINEUP_1TO2;
 
     temp=newnode1;
     newnode1=newnode2;
     newnode2=temp;
+    
+    float tmp;
+    tmp=segmentx->ascent;
+    segmentx->ascent=segmentx->descent;
+    segmentx->descent = tmp;
+    tmp=segmentx->ascentOn;
+    segmentx->ascentOn=segmentx->descentOn;
+    segmentx->descentOn=tmp;    
    }
 
  if(newnode1!=segmentx->node1)

@@ -163,6 +163,11 @@ Property PropertyType(const char *property)
        return(Property_Bridge);
     break;
 
+   case 'd':
+    if(!strcmp(property,"doublesens"))
+       return(Property_DoubleSens);
+    break;
+
    case 'f':
     if(!strcmp(property,"footroute"))
        return(Property_FootRoute);
@@ -324,6 +329,9 @@ const char *PropertyName(Property property)
 
    case Property_BicycleRoute:
     return("bicycleroute");
+
+   case Property_DoubleSens:
+    return("doublesens");
 
    case Property_Count:
     ;

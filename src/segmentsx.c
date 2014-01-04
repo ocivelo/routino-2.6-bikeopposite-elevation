@@ -37,6 +37,8 @@
 #include "logging.h"
 #include "sorting.h"
 
+#include "srtmHgtReader.h"
+
 
 /* Global variables */
 
@@ -131,7 +133,7 @@ void FreeSegmentList(SegmentsX *segmentsx)
   distance_t distance The distance between the nodes (or just the flags).
   ++++++++++++++++++++++++++++++++++++++*/
 
-void AppendSegmentList(SegmentsX *segmentsx,index_t way,index_t node1,index_t node2,distance_t distance)
+void AppendSegmentList(SegmentsX *segmentsx,index_t way,index_t node1,index_t node2,distance_t distance, float ascent, float descent, float ascentOn, float descentOn)
 {
  SegmentX segmentx;
 
@@ -145,6 +147,16 @@ void AppendSegmentList(SegmentsX *segmentsx,index_t way,index_t node1,index_t no
 
     if(distance&(ONEWAY_2TO1|ONEWAY_1TO2))
        distance^=ONEWAY_2TO1|ONEWAY_1TO2;
+    if(distance&(INCLINEUP_2TO1|INCLINEUP_1TO2))
+       distance^=INCLINEUP_2TO1|INCLINEUP_1TO2;
+       
+    float tmp;
+    tmp=ascent;
+    ascent=descent;
+    descent = tmp;
+    tmp=ascentOn;
+    ascentOn=descentOn;
+    descentOn=tmp;    
    }
 
  segmentx.node1=node1;
@@ -153,6 +165,12 @@ void AppendSegmentList(SegmentsX *segmentsx,index_t way,index_t node1,index_t no
  segmentx.way=way;
  segmentx.distance=distance;
 
+ segmentx.ascent=ascent;
+ segmentx.descent=descent;
+ segmentx.ascentOn=ascentOn;
+ segmentx.descentOn=descentOn;
+
+ 
  WriteFileBuffered(segmentsx->fd,&segmentx,sizeof(SegmentX));
 
  segmentsx->number++;
@@ -454,6 +472,18 @@ void ProcessSegments(SegmentsX *segmentsx,NodesX *nodesx,WaysX *waysx)
 
        segmentx.distance=DISTANCE(DistanceX(nodex1,nodex2))|DISTFLAG(segmentx.distance);
        segmentx.distance&=~SEGMENT_AREA;
+       
+       /* Compute the ascent descent */
+       TSrtmAscentDescent ad;
+       ad = srtmGetAscentDescent(
+            radians_to_degrees(latlong_to_radians(nodex1->latitude)), radians_to_degrees(latlong_to_radians(nodex1->longitude)),
+            radians_to_degrees(latlong_to_radians(nodex2->latitude)), radians_to_degrees(latlong_to_radians(nodex2->longitude)),
+            (int)DISTANCE(segmentx.distance));
+
+       segmentx.ascent = ad.ascent;
+       segmentx.descent = ad.descent;
+       segmentx.ascentOn = ad.ascentOn;
+       segmentx.descentOn = ad.descentOn;
 
        /* Write the modified segment */
 
@@ -893,6 +923,16 @@ static int geographically_index(SegmentX *segmentx,index_t index)
 
     if(segmentx->distance&(ONEWAY_2TO1|ONEWAY_1TO2))
        segmentx->distance^=ONEWAY_2TO1|ONEWAY_1TO2;
+    if(segmentx->distance&(INCLINEUP_2TO1|INCLINEUP_1TO2))
+       segmentx->distance^=INCLINEUP_2TO1|INCLINEUP_1TO2;
+    
+    float tmp;
+    tmp=segmentx->ascent;
+    segmentx->ascent=segmentx->descent;
+    segmentx->descent = tmp;
+    tmp=segmentx->ascentOn;
+    segmentx->ascentOn=segmentx->descentOn;
+    segmentx->descentOn=tmp;        
    }
 
  return(1);
@@ -941,6 +981,11 @@ void SaveSegmentList(SegmentsX *segmentsx,const char *filename)
     segment.way     =segmentx.way;
     segment.distance=segmentx.distance;
 
+    segment.ascent  =segmentx.ascent;
+    segment.descent =segmentx.descent;
+    segment.ascentOn=segmentx.ascentOn;
+    segment.descentOn=segmentx.descentOn;
+    
     if(IsSuperSegment(&segment))
        super_number++;
     if(IsNormalSegment(&segment))

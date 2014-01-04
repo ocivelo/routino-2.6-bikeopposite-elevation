@@ -460,8 +460,19 @@ SegmentsX *SplitWays(WaysX *waysx,NodesX *nodesx,int keep)
 
           if(wayx.way.type&Highway_Area)
              segment_flags|=SEGMENT_AREA;
+          
+          if (wayx.way.incline != 0) 
+            {
+			 if (wayx.way.incline > 0) 	
+			   segment_flags|=INCLINEUP_1TO2;
+			 else
+			   segment_flags|=INCLINEUP_2TO1;
+#ifdef DEBUG
+   printf("splitways-INCLINE=%d node1=%"Pindex_t" node2=%"Pindex_t" way=%"Pindex_t" segflags=%08x\n",wayx.way.incline,previndex,index,i,segment_flags);
+#endif
+			}
 
-          AppendSegmentList(segmentsx,i,previndex,index,segment_flags);
+          AppendSegmentList(segmentsx,i,previndex,index,segment_flags,0,0,0,0);
          }
 
        prevnode=node;
@@ -480,6 +491,12 @@ SegmentsX *SplitWays(WaysX *waysx,NodesX *nodesx,int keep)
     WriteFileBuffered(fd,&wayx,sizeof(WayX));
 
     size+=sizeof(index_t);
+#ifdef DEBUG
+    if (wayx.way.incline != 0) 
+      {
+       printf("splitways-INCLINE way=%"Pindex_t" name=%s\n",i,name);
+      }
+#endif
 
     WriteFileBuffered(nfd,&size,FILESORT_VARSIZE);
     WriteFileBuffered(nfd,&i,sizeof(index_t));

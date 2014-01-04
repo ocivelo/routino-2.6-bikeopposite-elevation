@@ -137,5 +137,8 @@ int WaysCompare(Way *way1p,Way *way2p)
  if(way1p->length!=way2p->length)
     return((int)way1p->length - (int)way2p->length);
 
+ if(way1p->incline!=way2p->incline)
+    return((int)way1p->incline - (int)way2p->incline);
+
  return(0);
 }

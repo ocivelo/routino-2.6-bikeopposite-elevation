@@ -221,7 +221,11 @@ Result *InsertResult(Results *results,index_t node,index_t segment)
 
  result->score=0;
  result->sortby=0;
-
+ result->ascent=0;
+ result->descent=0;
+ result->ascentOn=0;
+ result->descentOn=0;
+ 
  result->queued=NOT_QUEUED;
 
  return(result);

@@ -383,8 +383,11 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           resultwayp=LookupWay(ways,resultsegmentp->way,1);
 
           seg_distance+=DISTANCE(resultsegmentp->distance);
-          seg_duration+=Duration(resultsegmentp,resultwayp,profile);
-
+            /* pour calcul en fonction de incline */
+          if (result->node == resultsegmentp->node1)
+            seg_duration+=Duration(resultsegmentp->node2,resultsegmentp,resultwayp,profile);
+          else
+            seg_duration+=Duration(resultsegmentp->node1,resultsegmentp,resultwayp,profile);
           /* Calculate the cumulative distance/duration */
 
           junc_distance+=seg_distance;

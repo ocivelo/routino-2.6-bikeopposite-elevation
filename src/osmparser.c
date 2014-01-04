@@ -69,6 +69,7 @@ static node_t      relation_via=NO_NODE_ID;
 static double parse_speed(way_t id,const char *k,const char *v);
 static double parse_weight(way_t id,const char *k,const char *v);
 static double parse_length(way_t id,const char *k,const char *v);
+static double parse_incline(way_t id,const char *k,const char *v);
 
 
 /*++++++++++++++++++++++++++++++++++++++
@@ -525,6 +526,15 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
 
        break;
 
+	  case 'c':
+       if(!strcmp(k,"cycleway"))
+         {
+          if(!strcmp(v,"opposite_lane"))
+             way.props|=Properties_DoubleSens;
+           recognised=1; break;
+         }
+	    break;
+	   
       case 'f':
        if(!strcmp(k,"foot"))
          {
@@ -581,6 +591,16 @@ void ProcessWayTags(TagList *tags,int64_t way_id,int mode)
          }
 
        break;
+
+	  case 'i':
+       if(!strcmp(k,"incline"))
+         {
+/* logerror("Way %"Pway_t" has an 'incline' = '%s' \n",logerror_way(id),v); */
+         way.incline=pourcent_to_incline(parse_incline(id,k,v));
+          recognised=1; break;
+		 }
+	    break;
+
 
       case 'l':
        if(!strcmp(k,"lanes"))
@@ -1133,6 +1153,46 @@ static double parse_length(way_t id,const char *k,const char *v)
        return(value*0.254);
 
     if(*ev==0 || !strcmp(ev,"m") || !strcmp(ev,"metre") || !strcmp(ev,"metres"))
+       return(value);
+
+    logerror("Way %"Pway_t" has an un-parseable tag '%s' = '%s' (after tagging rules); ignoring it.\n",logerror_way(id),k,v);
+   }
+
+ return(0);
+}
+
+/*++++++++++++++++++++++++++++++++++++++
+  Convert a string containing an inclination into a double precision.
+
+  double parse_incline Returns the inclination in % if it can be parsed.
+
+  way_t id The way being processed.
+
+  const char *k The tag key.
+
+  const char *v The tag value.
+  ++++++++++++++++++++++++++++++++++++++*/
+
+static double parse_incline(way_t id,const char *k,const char *v)
+{
+ char *ev;
+ double value=strtod(v,&ev);
+
+ if(v==ev)
+    logerror("Way %"Pway_t" has an unrecognised tag '%s' = '%s' (after tagging rules); ignoring it.\n",logerror_way(id),k,v);
+ else
+   {
+    while(isspace(*ev)) ev++;
+
+    if(!strcmp(ev,"°"))
+      {
+	   if (value > 0) 
+         return(100*tan(value));
+       else
+         return(-100*tan(-value));       
+      }
+      
+    if(*ev==0 || !strcmp(ev,"%"))
        return(value);
 
     logerror("Way %"Pway_t" has an un-parseable tag '%s' = '%s' (after tagging rules); ignoring it.\n",logerror_way(id),k,v);

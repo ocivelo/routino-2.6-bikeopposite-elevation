@@ -52,6 +52,7 @@ struct _Way
  height_t     height;           /*+ The defined maximum height of traffic on the way. +*/
  width_t      width;            /*+ The defined maximum width of traffic on the way. +*/
  length_t     length;           /*+ The defined maximum length of traffic on the way. +*/
+ incline_t    incline;          /*+ The maximum inclination of the way +*/
 };
 
 

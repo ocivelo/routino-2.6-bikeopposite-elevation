@@ -103,11 +103,17 @@
 /*+ A flag to mark a segment as a normal segment. +*/
 #define SEGMENT_NORMAL ((distance_t)0x08000000)
 
+/*+ A flag to mark a segment as incline up from node1 to node2. +*/
+#define INCLINEUP_1TO2    ((distance_t)0x04000000)
+
+/*+ A flag to mark a segment as incline up from node2 to node1.  +*/
+#define INCLINEUP_2TO1    ((distance_t)0x02000000)
+
 /*+ The real distance ignoring the other flags. +*/
-#define DISTANCE(xx)   ((distance_t)((xx)&(~(SEGMENT_AREA|ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL))))
+#define DISTANCE(xx)   ((distance_t)((xx)&(~(SEGMENT_AREA|ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL|INCLINEUP_1TO2|INCLINEUP_2TO1))))
 
 /*+ The distance flags selecting only the flags. +*/
-#define DISTFLAG(xx)   ((distance_t)((xx)&(SEGMENT_AREA|ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL)))
+#define DISTFLAG(xx)   ((distance_t)((xx)&(SEGMENT_AREA|ONEWAY_1TO2|ONEWAY_2TO1|SEGMENT_SUPER|SEGMENT_NORMAL|INCLINEUP_1TO2|INCLINEUP_2TO1)))
 
 
 /*+ A very large almost infinite distance. +*/
@@ -331,8 +337,8 @@ typedef enum _Property
   Property_Tunnel       = 4,
   Property_FootRoute    = 5,
   Property_BicycleRoute = 6,
-
-  Property_Count        = 7       /* One more than the number of property types. */
+  Property_DoubleSens   = 7,
+  Property_Count        = 8       /* One more than the number of property types. */
  }
  Property;
 
@@ -353,7 +359,7 @@ typedef enum _Properties
   Properties_Tunnel       = PROPERTIES(Property_Tunnel      ),
   Properties_FootRoute    = PROPERTIES(Property_FootRoute   ),
   Properties_BicycleRoute = PROPERTIES(Property_BicycleRoute),
-
+  Properties_DoubleSens   = PROPERTIES(Property_DoubleSens  ),
   Properties_ALL          = PROPERTIES(Property_Count       )-1
  }
  Properties;
@@ -373,6 +379,9 @@ typedef uint8_t width_t;
 
 /*+ The maximum length of a way, measured in multiples of 0.1 metres. +*/
 typedef uint8_t length_t;
+
+/*+ The maximum inclination of a way, measured in multiples of 0.1 %. +*/
+typedef int16_t incline_t;
 
 
 /*+ Conversion of km/hr to speed_t. +*/
@@ -405,6 +414,11 @@ typedef uint8_t length_t;
 /*+ Conversion of length_t to metres. +*/
 #define length_to_metres(xxx)  ((double)(xxx)/10.0)
 
+/*+ Conversion of pourcent to incline_t. +*/
+#define pourcent_to_incline(xxx)  (incline_t)((xxx)*10)
+
+/*+ Conversion of incline_t to % . +*/
+#define incline_to_pourcent(xxx)  ((double)(xxx)/10.0)
 
 /* Data structures */
 

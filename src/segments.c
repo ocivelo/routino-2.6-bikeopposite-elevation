@@ -144,8 +144,8 @@ index_t FindClosestSegmentHeading(Nodes *nodes,Segments *segments,Ways *ways,ind
     if(!IsNormalSegment(segmentp))
        goto endloop;
 
-    if(profile->oneway && IsOnewayFrom(segmentp,node1))
-       goto endloop;
+//    if(profile->oneway && IsOnewayFrom(segmentp,node1))
+//       goto endloop;
 
     if(IsFakeNode(node1) || IsFakeNode(node2))
        seg2=IndexFakeSegment(segmentp);
@@ -153,10 +153,23 @@ index_t FindClosestSegmentHeading(Nodes *nodes,Segments *segments,Ways *ways,ind
        seg2=IndexSegment(segments,segmentp);
 
     wayp=LookupWay(ways,segmentp->way,1);
-
+	
     if(!(wayp->allow&profile->allow))
        goto endloop;
 
+    if(profile->oneway && IsOnewayFrom(segmentp,node1))
+	 {
+      if (profile->allow != Transports_Bicycle)
+        goto endloop;      
+	  if (!(wayp->props & Properties_DoubleSens))
+        goto endloop;      
+ #if DEBUG
+ printf("  FindClosestSegmentHeading(...,node1=%"Pindex_t",node2=%"Pindex_t") props=%d DoubleSens=%d\n",node1,node2,wayp->props,Properties_DoubleSens);
+#endif
+
+	 }
+
+	
     bearing=BearingAngle(nodes,segmentp,node1);
 
     difference=(heading-bearing);
@@ -228,6 +241,8 @@ distance_t Distance(double lat1,double lon1,double lat2,double lon2)
   Calculate the duration of travel on a segment.
 
   duration_t Duration Returns the duration of travel.
+  
+  Node *node first node of the route
 
   Segment *segmentp The segment to traverse.
 
@@ -236,10 +251,11 @@ distance_t Distance(double lat1,double lon1,double lat2,double lon2)
   Profile *profile The profile of the transport being used.
   ++++++++++++++++++++++++++++++++++++++*/
 
-duration_t Duration(Segment *segmentp,Way *wayp,Profile *profile)
+duration_t Duration(index_t node, Segment *segmentp,Way *wayp,Profile *profile)
 {
  speed_t    speed1=wayp->speed;
  speed_t    speed2=profile->speed[HIGHWAY(wayp->type)];
+ speed_t    speedresult, speedcalc;
  distance_t distance=DISTANCE(segmentp->distance);
 
  if(speed1==0)
@@ -247,17 +263,74 @@ duration_t Duration(Segment *segmentp,Way *wayp,Profile *profile)
     if(speed2==0)
        return(hours_to_duration(10));
     else
-       return distance_speed_to_duration(distance,speed2);
+       speedresult=speed2;
    }
  else /* if(speed1!=0) */
    {
     if(speed2==0)
-       return distance_speed_to_duration(distance,speed1);
+       speedresult=speed1;
     else if(speed1<=speed2)
-       return distance_speed_to_duration(distance,speed1);
+       speedresult=speed1;
     else
-       return distance_speed_to_duration(distance,speed2);
+       speedresult=speed2;
    }
+ if (profile->allow != Transports_Bicycle || (wayp->incline == 0 && segmentp->ascentOn == 0 && segmentp->descentOn == 0))   
+   return distance_speed_to_duration(distance,speedresult);
+   
+#if DEBUG
+   printf("    incline=%d  node=%"Pindex_t" seg->node1=%"Pindex_t" seg->node2=%"Pindex_t" ascentOn=%0.4f descentOn=%04f descent=%f distx=%08x\n",wayp->incline,node,segmentp->node1,segmentp->node2,segmentp->ascentOn,segmentp->descentOn,segmentp->descent,segmentp->distance );
+#endif
+ if (wayp->incline != 0)
+   {
+	if (segmentp->node1 == node && segmentp->distance & INCLINEUP_2TO1) 
+      return distance_speed_to_duration(distance,speedresult);
+
+    if (segmentp->node2 == node && segmentp->distance & INCLINEUP_1TO2) 
+      return distance_speed_to_duration(distance,speedresult);
+  
+    if (abs(wayp->incline) < 50) 
+      return distance_speed_to_duration(distance,speedresult);
+ 
+    if (abs(wayp->incline) < 100) 
+      speedcalc = 20 - abs(wayp->incline)/10;
+    else
+      if (abs(wayp->incline) < 160) 
+        speedcalc = 18 - abs(wayp->incline)/10;
+      else
+        speedcalc = 2;
+
+#if DEBUG
+   printf("Duration    incline=%d  speedcalc=%d result=%d\n",wayp->incline,speedcalc,speedresult );
+#endif
+   }
+ else
+   {
+	float    percent=0;   
+	if (segmentp->node1 == node && segmentp->ascentOn > 0) 
+      percent = segmentp->ascent/segmentp->ascentOn*100;
+	if (segmentp->node2 == node && segmentp->descentOn > 0) 
+      percent = segmentp->descent/segmentp->descentOn*100;
+
+    if(percent < 5) 
+      return distance_speed_to_duration(distance,speedresult);
+
+    if(percent < 10) 
+      speedcalc = 20 - percent;
+ 
+    if(percent < 16) 
+      speedcalc = 18 - percent;
+    else 
+      speedcalc = 2;
+
+#if DEBUG
+     printf("Duration percent: %0.2f speedcalc=%d result=%d\n",percent,speedcalc,speedresult );
+#endif
+  }
+ 
+ if (speedcalc < speedresult) speedresult=speedcalc;
+ 
+ return distance_speed_to_duration(distance,speedresult);
+ 
 }
 
 

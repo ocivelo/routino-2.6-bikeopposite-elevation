@@ -291,10 +291,34 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
                {
                 if(IsBitSet(nodesx->super,result->node) && result->segment!=NO_SEGMENT)
                   {
+  				   distance_t segment_flags=0;
                    if(wayx->way.type&Highway_OneWay && result->node!=i)
-                      AppendSegmentList(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score)|ONEWAY_1TO2);
-                   else
-                      AppendSegmentList(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score));
+                      segment_flags|=ONEWAY_1TO2;
+                      
+                   if (wayx->way.incline != 0 && result->node!=i) 
+                     {
+					  SegmentX *segmentxres;	 
+                      segmentxres=LookupSegmentX(segmentsx,result->segment,2);
+				      if (segmentxres->node1==i) 
+			            segment_flags|= (segmentxres->distance & (INCLINEUP_1TO2|INCLINEUP_2TO1)) ;
+			          else if (segmentxres->node2==i)
+						{
+						 segment_flags=	INCLINEUP_1TO2|INCLINEUP_2TO1;
+			             segment_flags^=(segmentxres->distance & (INCLINEUP_1TO2|INCLINEUP_2TO1)) ;
+					    }
+			          else if (segmentxres->node2==result->node) 
+			            segment_flags|= (segmentxres->distance & (INCLINEUP_1TO2|INCLINEUP_2TO1)) ;
+			          else if (segmentxres->node1==result->node) 
+						{
+						 segment_flags=	INCLINEUP_1TO2|INCLINEUP_2TO1;
+ 			             segment_flags^=(segmentxres->distance & (INCLINEUP_1TO2|INCLINEUP_2TO1)) ;
+					    }
+#ifdef DEBUG
+   printf("createsupersegments-INCLINE=%d node1=%"Pindex_t" node2=%"Pindex_t" segxnode1=%"Pindex_t" segxnode2=%"Pindex_t" way=%"Pindex_t" segx=%"Pindex_t" segdist=%08x calcflags=%08x\n",wayx->way.incline,i,result->node,segmentxres->node1,segmentxres->node2,segmentxres->way,result->segment,segmentxres->distance,segment_flags);
+#endif
+			         }
+
+                   AppendSegmentList(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score)|segment_flags, result->ascent, result->descent, result->ascentOn, result->descentOn);
 
                    ss++;
                   }
@@ -409,7 +433,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
                (segmentx.node1>supersegmentx.node1))
          {
           /* mark as super-segment */
-          AppendSegmentList(mergedsegmentsx,supersegmentx.way,supersegmentx.node1,supersegmentx.node2,supersegmentx.distance|SEGMENT_SUPER);
+          AppendSegmentList(mergedsegmentsx,supersegmentx.way,supersegmentx.node1,supersegmentx.node2,supersegmentx.distance|SEGMENT_SUPER,supersegmentx.ascent, supersegmentx.descent, supersegmentx.ascentOn, supersegmentx.descentOn);
           added++;
           j++;
          }
@@ -421,9 +445,9 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
       }
 
     if(super)
-       AppendSegmentList(mergedsegmentsx,segmentx.way,segmentx.node1,segmentx.node2,segmentx.distance|SEGMENT_SUPER|SEGMENT_NORMAL);
+       AppendSegmentList(mergedsegmentsx,segmentx.way,segmentx.node1,segmentx.node2,segmentx.distance|SEGMENT_SUPER|SEGMENT_NORMAL, segmentx.ascent, segmentx.descent, segmentx.ascentOn, segmentx.descentOn);
     else
-       AppendSegmentList(mergedsegmentsx,segmentx.way,segmentx.node1,segmentx.node2,segmentx.distance|SEGMENT_NORMAL);
+       AppendSegmentList(mergedsegmentsx,segmentx.way,segmentx.node1,segmentx.node2,segmentx.distance|SEGMENT_NORMAL, segmentx.ascent, segmentx.descent, segmentx.ascentOn, segmentx.descentOn);
 
     if(!((i+1)%10000))
        printf_middle("Merging Segments: Segments=%"Pindex_t" Super=%"Pindex_t" Merged=%"Pindex_t" Added=%"Pindex_t,i+1,j,merged,added);
@@ -534,7 +558,20 @@ static Results *FindSuperRoutes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx
           result2=InsertResult(results,node2,seg2);
           result2->prev=result1;
           result2->score=cumulative_distance;
-
+          if (node1 == segmentx->node1) 
+            {
+		     result2->ascent = result1->ascent + segmentx->ascent;
+             result2->descent = result1->descent + segmentx->descent;
+             result2->ascentOn = result1->ascentOn + segmentx->ascentOn;
+             result2->descentOn = result1->descentOn + segmentx->descentOn;
+		    }
+          else
+            {
+		     result2->ascent = result1->ascent + segmentx->descent;
+             result2->descent = result1->descent + segmentx->ascent;
+             result2->ascentOn = result1->ascentOn + segmentx->descentOn;
+             result2->descentOn = result1->descentOn + segmentx->ascentOn;
+		    }
           /* don't route beyond a super-node. */
           if(!IsBitSet(nodesx->super,node2))
              InsertInQueue(queue,result2,cumulative_distance);
@@ -543,6 +580,21 @@ static Results *FindSuperRoutes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx
          {
           result2->prev=result1;
           result2->score=cumulative_distance;
+
+          if (node1 == segmentx->node1) 
+            {
+		     result2->ascent = result1->ascent + segmentx->ascent;
+             result2->descent = result1->descent + segmentx->descent;
+             result2->ascentOn = result1->ascentOn + segmentx->ascentOn;
+             result2->descentOn = result1->descentOn + segmentx->descentOn;
+		    }
+          else
+            {
+		     result2->ascent = result1->ascent + segmentx->descent;
+             result2->descent = result1->descent + segmentx->ascent;
+             result2->ascentOn = result1->ascentOn + segmentx->descentOn;
+             result2->descentOn = result1->descentOn + segmentx->ascentOn;
+		    }
 
           /* don't route beyond a super-node. */
           if(!IsBitSet(nodesx->super,node2))
