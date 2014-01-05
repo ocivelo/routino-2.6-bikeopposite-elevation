@@ -938,6 +938,11 @@
 
       <if k="area"> <output/> </if>
 
+      <!-- Output the incline tag -->
+
+      <if k="incline"> <output/> </if>
+      
+
     </if> <!-- k="highway" -->
 
   </way>

@@ -54,6 +54,7 @@
       <property type="tunnel"       percent="50" />
       <property type="footroute"    percent="55" />
       <property type="bicycleroute" percent="55" />
+      <property type="doublesens"   percent="50" />
     </properties>
     <restrictions>
       <oneway obey="0" /> 
@@ -103,6 +104,7 @@
       <property type="tunnel"       percent="50" />
       <property type="footroute"    percent="50" />
       <property type="bicycleroute" percent="50" />
+      <property type="doublesens"   percent="50" />
     </properties>
     <restrictions>
       <oneway obey="1" /> 
@@ -152,7 +154,8 @@
       <property type="tunnel"       percent="50" />
       <property type="footroute"    percent="55" />
       <property type="bicycleroute" percent="55" />
-    </properties>
+      <property type="doublesens"   percent="50" />
+   </properties>
     <restrictions>
       <oneway obey="0" /> 
       <turns  obey="0" /> 
@@ -201,6 +204,7 @@
       <property type="tunnel"       percent="50" />
       <property type="footroute"    percent="50" />
       <property type="bicycleroute" percent="60" />
+      <property type="doublesens"   percent="50" />
     </properties>
     <restrictions>
       <oneway obey="1" /> 
@@ -250,6 +254,7 @@
       <property type="tunnel"       percent="50" />
       <property type="footroute"    percent="50" />
       <property type="bicycleroute" percent="50" />
+      <property type="doublesens"   percent="50" />
     </properties>
     <restrictions>
       <oneway obey="1" /> 
@@ -299,6 +304,7 @@
       <property type="tunnel"       percent="50" />
       <property type="footroute"    percent="50" />
       <property type="bicycleroute" percent="50" />
+      <property type="doublesens"   percent="50" />
     </properties>
     <restrictions>
       <oneway obey="1" /> 
@@ -348,6 +354,7 @@
       <property type="tunnel"       percent="50" />
       <property type="footroute"    percent="45" />
       <property type="bicycleroute" percent="45" />
+      <property type="doublesens"   percent="50" />
     </properties>
     <restrictions>
       <oneway obey="1" /> 
@@ -397,6 +404,7 @@
       <property type="tunnel"       percent="50" />
       <property type="footroute"    percent="45" />
       <property type="bicycleroute" percent="45" />
+      <property type="doublesens"   percent="50" />
     </properties>
     <restrictions>
       <oneway obey="1" /> 
@@ -446,6 +454,7 @@
       <property type="tunnel"       percent="50" />
       <property type="footroute"    percent="45" />
       <property type="bicycleroute" percent="45" />
+      <property type="doublesens"   percent="50" />
     </properties>
     <restrictions>
       <oneway obey="1" /> 
@@ -495,6 +504,7 @@
       <property type="tunnel"       percent="50" />
       <property type="footroute"    percent="45" />
       <property type="bicycleroute" percent="45" />
+      <property type="doublesens"   percent="50" />
     </properties>
     <restrictions>
       <oneway obey="1" /> 
