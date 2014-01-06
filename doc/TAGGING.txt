@@ -217,6 +217,11 @@ The area Tag
    used only so that in the case of duplicated segments those belonging to
    an area can be discarded in preference to those that are not.
 
+The incline Tag
+- - - - - - - -
+   is used to specify the inclination of a way. It is used only to compute 
+   bike route durations. It takes values in degrees or in %. The value can 
+   be negative to indicate if way goes down from point A to final.  
 
 Relation Tags And Attributes
 ----------------------------
@@ -484,7 +489,9 @@ Highway Restrictions
 
    The oneway, maxspeed, maxweight, maxheight, maxwidth and maxlength are
    copied directly from the input to the output without modification.
-
+   The cycleway tag is copied the same way to take into account opposite_lane
+   for bikes
+   
 Roundabouts
 - - - - - -
 
