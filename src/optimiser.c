@@ -161,6 +161,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        index_t node2,seg2,seg2r;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
+       speed_t speedresult=0;
 
        node2=OtherNode(segmentp,node1); /* need this here because we use node2 at the end of the loop */
 
@@ -255,7 +256,7 @@ Results *FindNormalRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(node1,segmentp,wayp,profile)/segment_pref;
+          segment_score=(score_t)Duration(node1,segmentp,wayp,profile,&speedresult)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 
@@ -499,7 +500,8 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        index_t node2,seg2;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
-
+       speed_t speedresult=0;
+       
        /* must be a super segment */
        if(!IsSuperSegment(segmentp))
           goto endloop;
@@ -580,7 +582,7 @@ Results *FindMiddleRoute(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(node1,segmentp,wayp,profile)/segment_pref;
+          segment_score=(score_t)Duration(node1,segmentp,wayp,profile, &speedresult)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 #if DEBUG
@@ -1007,6 +1009,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        index_t node2,seg2,seg2r;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
+       speed_t speedresult=0;
 
        node2=OtherNode(segmentp,node1); /* need this here because we use node2 at the end of the loop */
 
@@ -1096,7 +1099,7 @@ Results *FindStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *r
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(node1,segmentp,wayp,profile)/segment_pref;
+          segment_score=(score_t)Duration(node1,segmentp,wayp,profile,&speedresult)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 
@@ -1309,7 +1312,8 @@ Results *ExtendStartRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations 
        index_t node2,seg2,seg2r;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
-
+       speed_t    speedresult=0;
+       
        node2=OtherNode(segmentp,node1); /* need this here because we use node2 at the end of the loop */
 
        /* must be a normal segment */
@@ -1391,7 +1395,7 @@ printf("  ExtendStartRoutes(...,[begin has %d nodes],finish_node=%"Pindex_t") pr
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(node1,segmentp,wayp,profile)/segment_pref;
+          segment_score=(score_t)Duration(node1,segmentp,wayp,profile,&speedresult)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 
@@ -1538,7 +1542,8 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
        index_t node2,seg2,seg2r;
        score_t segment_pref,segment_score,cumulative_score;
        int i;
-
+       speed_t  speedresult=0;
+       
        /* must be a normal segment unless node1 is a super-node (see below). */
        if((IsFakeNode(node1) || !IsSuperNode(node1p)) && !IsNormalSegment(segmentp))
           goto endloop;
@@ -1629,7 +1634,7 @@ Results *FindFinishRoutes(Nodes *nodes,Segments *segments,Ways *ways,Relations *
        if(option_quickest==0)
           segment_score=(score_t)DISTANCE(segmentp->distance)/segment_pref;
        else
-          segment_score=(score_t)Duration(node2,segmentp,wayp,profile)/segment_pref;
+          segment_score=(score_t)Duration(node2,segmentp,wayp,profile,&speedresult)/segment_pref;
 
        cumulative_score=result1->score+segment_score;
 

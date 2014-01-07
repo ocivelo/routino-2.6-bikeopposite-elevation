@@ -249,13 +249,15 @@ distance_t Distance(double lat1,double lon1,double lat2,double lon2)
   Way *wayp The way that the segment belongs to.
 
   Profile *profile The profile of the transport being used.
+  
+  pspeedresult speed calculated by this function 
   ++++++++++++++++++++++++++++++++++++++*/
 
-duration_t Duration(index_t node, Segment *segmentp,Way *wayp,Profile *profile)
+duration_t Duration(index_t node, Segment *segmentp,Way *wayp,Profile *profile,speed_t *pspeedresult)
 {
  speed_t    speed1=wayp->speed;
  speed_t    speed2=profile->speed[HIGHWAY(wayp->type)];
- speed_t    speedresult, speedcalc;
+ speed_t    speedcalc;
  distance_t distance=DISTANCE(segmentp->distance);
 
  if(speed1==0)
@@ -263,19 +265,19 @@ duration_t Duration(index_t node, Segment *segmentp,Way *wayp,Profile *profile)
     if(speed2==0)
        return(hours_to_duration(10));
     else
-       speedresult=speed2;
+       *pspeedresult=speed2;
    }
  else /* if(speed1!=0) */
    {
     if(speed2==0)
-       speedresult=speed1;
+       *pspeedresult=speed1;
     else if(speed1<=speed2)
-       speedresult=speed1;
+       *pspeedresult=speed1;
     else
-       speedresult=speed2;
+       *pspeedresult=speed2;
    }
  if (profile->allow != Transports_Bicycle || (wayp->incline == 0 && segmentp->ascentOn == 0 && segmentp->descentOn == 0))   
-   return distance_speed_to_duration(distance,speedresult);
+   return distance_speed_to_duration(distance,*pspeedresult);
    
 #if DEBUG
    printf("    incline=%d  node=%"Pindex_t" seg->node1=%"Pindex_t" seg->node2=%"Pindex_t" ascentOn=%0.4f descentOn=%04f descent=%f distx=%08x\n",wayp->incline,node,segmentp->node1,segmentp->node2,segmentp->ascentOn,segmentp->descentOn,segmentp->descent,segmentp->distance );
@@ -283,13 +285,13 @@ duration_t Duration(index_t node, Segment *segmentp,Way *wayp,Profile *profile)
  if (wayp->incline != 0)
    {
 	if (segmentp->node1 == node && segmentp->distance & INCLINEUP_2TO1) 
-      return distance_speed_to_duration(distance,speedresult);
+      return distance_speed_to_duration(distance,*pspeedresult);
 
     if (segmentp->node2 == node && segmentp->distance & INCLINEUP_1TO2) 
-      return distance_speed_to_duration(distance,speedresult);
+      return distance_speed_to_duration(distance,*pspeedresult);
   
     if (abs(wayp->incline) < 50) 
-      return distance_speed_to_duration(distance,speedresult);
+      return distance_speed_to_duration(distance,*pspeedresult);
  
     if (abs(wayp->incline) < 100) 
       speedcalc = 20 - abs(wayp->incline)/10;
@@ -300,7 +302,7 @@ duration_t Duration(index_t node, Segment *segmentp,Way *wayp,Profile *profile)
         speedcalc = 2;
 
 #if DEBUG
-   printf("Duration    incline=%d  speedcalc=%d result=%d\n",wayp->incline,speedcalc,speedresult );
+   printf("Duration    incline=%d  speedcalc=%d result=%d\n",wayp->incline,speedcalc,*pspeedresult );
 #endif
    }
  else
@@ -312,7 +314,7 @@ duration_t Duration(index_t node, Segment *segmentp,Way *wayp,Profile *profile)
       percent = segmentp->descent/segmentp->descentOn*100;
 
     if(percent < 5) 
-      return distance_speed_to_duration(distance,speedresult);
+      return distance_speed_to_duration(distance,*pspeedresult);
 
     if(percent < 10) 
       speedcalc = 20 - percent;
@@ -323,13 +325,13 @@ duration_t Duration(index_t node, Segment *segmentp,Way *wayp,Profile *profile)
       speedcalc = 2;
 
 #if DEBUG
-     printf("Duration percent: %0.2f speedcalc=%d result=%d\n",percent,speedcalc,speedresult );
+     printf("Duration percent: %0.2f speedcalc=%d result=%d\n",percent,speedcalc,*pspeedresult );
 #endif
   }
  
- if (speedcalc < speedresult) speedresult=speedcalc;
+ if (speedcalc < *pspeedresult) *pspeedresult=speedcalc;
  
- return distance_speed_to_duration(distance,speedresult);
+ return distance_speed_to_duration(distance,*pspeedresult);
  
 }
 

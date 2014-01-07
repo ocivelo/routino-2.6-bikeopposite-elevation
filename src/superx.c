@@ -560,17 +560,25 @@ static Results *FindSuperRoutes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx
           result2->score=cumulative_distance;
           if (node1 == segmentx->node1) 
             {
-		     result2->ascent = result1->ascent + segmentx->ascent;
-             result2->descent = result1->descent + segmentx->descent;
-             result2->ascentOn = result1->ascentOn + segmentx->ascentOn;
-             result2->descentOn = result1->descentOn + segmentx->descentOn;
+			 if (segmentx->ascent > result1->ascent && result1->descent == 0) 
+		        result2->ascent = segmentx->ascent;
+			 if (segmentx->ascentOn > result1->ascentOn && result1->descentOn == 0) 
+		        result2->ascentOn = segmentx->ascentOn;
+			 if (segmentx->descent > result1->descent && result1->ascent == 0) 
+		        result2->descent = segmentx->descent;
+			 if (segmentx->descentOn > result1->descentOn && result1->ascentOn == 0) 
+		        result2->descentOn = segmentx->descentOn;
 		    }
           else
             {
-		     result2->ascent = result1->ascent + segmentx->descent;
-             result2->descent = result1->descent + segmentx->ascent;
-             result2->ascentOn = result1->ascentOn + segmentx->descentOn;
-             result2->descentOn = result1->descentOn + segmentx->ascentOn;
+			 if (segmentx->descent > result1->ascent && result1->descent == 0) 
+		        result2->ascent = segmentx->descent;
+			 if (segmentx->descentOn > result1->ascentOn && result1->descentOn == 0) 
+		        result2->ascentOn = segmentx->descentOn;
+			 if (segmentx->ascent > result1->descent && result1->ascent == 0) 
+		        result2->descent = segmentx->ascent;
+			 if (segmentx->descentOn > result1->ascentOn && result1->ascentOn == 0) 
+		        result2->descentOn = segmentx->ascentOn;
 		    }
           /* don't route beyond a super-node. */
           if(!IsBitSet(nodesx->super,node2))
@@ -583,17 +591,25 @@ static Results *FindSuperRoutes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx
 
           if (node1 == segmentx->node1) 
             {
-		     result2->ascent = result1->ascent + segmentx->ascent;
-             result2->descent = result1->descent + segmentx->descent;
-             result2->ascentOn = result1->ascentOn + segmentx->ascentOn;
-             result2->descentOn = result1->descentOn + segmentx->descentOn;
+			 if (segmentx->ascent > result1->ascent && result1->descent == 0) 
+		        result2->ascent = segmentx->ascent;
+			 if (segmentx->ascentOn > result1->ascentOn && result1->descentOn == 0) 
+		        result2->ascentOn = segmentx->ascentOn;
+			 if (segmentx->descent > result1->descent && result1->ascent == 0) 
+		        result2->descent = segmentx->descent;
+			 if (segmentx->descentOn > result1->descentOn && result1->ascentOn == 0) 
+		        result2->descentOn = segmentx->descentOn;
 		    }
           else
             {
-		     result2->ascent = result1->ascent + segmentx->descent;
-             result2->descent = result1->descent + segmentx->ascent;
-             result2->ascentOn = result1->ascentOn + segmentx->descentOn;
-             result2->descentOn = result1->descentOn + segmentx->ascentOn;
+			 if (segmentx->descent > result1->ascent && result1->descent == 0) 
+		        result2->ascent = segmentx->descent;
+			 if (segmentx->descentOn > result1->ascentOn && result1->descentOn == 0) 
+		        result2->ascentOn = segmentx->descentOn;
+			 if (segmentx->ascent > result1->descent && result1->ascent == 0) 
+		        result2->descent = segmentx->ascent;
+			 if (segmentx->descentOn > result1->ascentOn && result1->ascentOn == 0) 
+		        result2->descentOn = segmentx->ascentOn;
 		    }
 
           /* don't route beyond a super-node. */

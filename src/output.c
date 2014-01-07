@@ -385,9 +385,9 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
           seg_distance+=DISTANCE(resultsegmentp->distance);
             /* pour calcul en fonction de incline */
           if (result->node == resultsegmentp->node1)
-            seg_duration+=Duration(resultsegmentp->node2,resultsegmentp,resultwayp,profile);
+            seg_duration+=Duration(resultsegmentp->node2,resultsegmentp,resultwayp,profile,&seg_speed);
           else
-            seg_duration+=Duration(resultsegmentp->node1,resultsegmentp,resultwayp,profile);
+            seg_duration+=Duration(resultsegmentp->node1,resultsegmentp,resultwayp,profile,&seg_speed);
           /* Calculate the cumulative distance/duration */
 
           junc_distance+=seg_distance;
@@ -518,7 +518,8 @@ void PrintRoute(Results **results,int nresults,Nodes *nodes,Segments *segments,W
 
           bearing_int=(int)BearingAngle(nodes,resultsegmentp,result->node);
 
-          seg_speed=profile->speed[HIGHWAY(resultwayp->type)];
+          if (seg_speed==0) 
+             seg_speed=profile->speed[HIGHWAY(resultwayp->type)];
          }
 
        if(next_result && important>IMP_JUNCT_CONT)

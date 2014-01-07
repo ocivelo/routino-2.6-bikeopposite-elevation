@@ -38,6 +38,9 @@ history of modifications
      because of the use of the ultimate version of routino available (2.6) 
      because the first modifications (opposite_lane and incline tags) were made before knowing of Pavel contribution.
      because It's not using modifications on profile parameters (ie hills and Lengh) made by Pavel.
-     because There is some polish language stuff in Pavel repository that I don't understand. 
+     because There is some not english language stuff in Pavel repository that I don't understand. 
      
-      
+   change 07/01/2014 
+      correction in taking into account elevation on supersegments
+      output speed calculated by Duration (real speed used to calculate duration of the journey on a segment )
+   
