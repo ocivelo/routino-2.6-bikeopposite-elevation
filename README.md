@@ -43,4 +43,6 @@ history of modifications
    change 07/01/2014 
       correction in taking into account elevation on supersegments
       output speed calculated by Duration (real speed used to calculate duration of the journey on a segment )
+   change 11/01/2014 
+      Adding french version for language translations.xml, router.html.fr and .en, and change on router.js to change language
    

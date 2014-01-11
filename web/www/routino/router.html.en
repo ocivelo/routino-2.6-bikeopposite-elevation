@@ -100,6 +100,10 @@
               <td>(DE)
               <td><input name="language" type="radio" value="de" onchange="formSetLanguage();">
             <tr>
+              <td><a id="lang_fr_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html.fr" title="French language web page">French</a>
+              <td>(FR)
+              <td><input name="language" type="radio" value="fr" onchange="formSetLanguage();">
+            <tr>
               <td><a id="lang_nl_url" onmouseover="updateURL(this);" onfocus="updateURL(this);" onclick="updateURL(this);" href="router.html.nl" title="Dutch language web page">Dutch</a>
               <td>(NL)
               <td><input name="language" type="radio" value="nl" onchange="formSetLanguage();">

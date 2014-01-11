@@ -616,7 +616,8 @@ function updateURL(element)     // called from router.html
     element.href=mapprops.editurl + "?" + buildMapArguments();
 
  if(element.id.match(/^lang_([a-zA-Z-]+)_url$/))
-    element.href="router.html" + "." + RegExp.$1 + "?" + buildURLArguments(false) + ";" + buildMapArguments();
+    element.href="router.html" + "." + RegExp.$1 + "?" + buildURLArguments(true) + ";" + buildMapArguments();
+//    element.href="router.html" + "." + RegExp.$1 + "?" + buildURLArguments(false) + ";" + buildMapArguments();
 }
 
 

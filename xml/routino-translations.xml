@@ -206,6 +206,101 @@
 
   </language>
 
+  <!-- French translation by Christophe Collard (janvier 2014) -->
+
+ <language lang="fr">
+
+    <!-- Copyright of the data being routed, not of this file  -->
+    <copyright>
+      <creator string="Créateur" text="Routino - http://www.routino.org/" />
+      <source  string="Source"  text="Basé sur les données OpenStreetMap de http://www.openstreetmap.org/" />
+      <license string="License" text="http://www.openstreetmap.org/copyright" />
+    </copyright>
+
+    <!-- Turn directions, 0 = ahead, -2 = left, +/-4 = behind, +2 = right -->
+    <turn direction="-4" string="demi-tour à gauche" />
+    <turn direction="-3" string="Très à gauche" />
+    <turn direction="-2" string="à gauche" />
+    <turn direction="-1" string="Légèrement à gauche" />
+    <turn direction="0"  string="Tout droit" />
+    <turn direction="1"  string="légèrement à droite" />
+    <turn direction="2"  string="à droite" />
+    <turn direction="3"  string="très à droite" />
+    <turn direction="4"  string="demi-tour à droite" />
+
+    <!-- Heading directions, 0 = North, -2 = West, +/-4 = South, +2 = East -->
+    <heading direction="-4" string="Sud" />
+    <heading direction="-3" string="Dud-Ouest" />
+    <heading direction="-2" string="Ouest" />
+    <heading direction="-1" string="Nord-Ouest" />
+    <heading direction="0"  string="Nord" />
+    <heading direction="1"  string="Nord-Est" />
+    <heading direction="2"  string="Est" />
+    <heading direction="3"  string="Sud-Est" />
+    <heading direction="4"  string="Sud" />
+
+    <!-- Ordinals, 1 = first, 2 = second ... -->
+    <ordinal number="1"  string="Premier" />
+    <ordinal number="2"  string="Second" />
+    <ordinal number="3"  string="Troisième" />
+    <ordinal number="4"  string="Quatrième" />
+    <ordinal number="5"  string="Cinquième" />
+    <ordinal number="6"  string="Sixième" />
+    <ordinal number="7"  string="Septième" />
+    <ordinal number="8"  string="huitième" />
+    <ordinal number="9"  string="Neuvième" />
+    <ordinal number="10" string="Dixième" />
+
+    <!-- Highway names -->
+    <highway type="motorway"     string="autoroute" />
+    <highway type="trunk"        string="route de jonction" />
+    <highway type="primary"      string="route nationale" />
+    <highway type="secondary"    string="route départementale" />
+    <highway type="tertiary"     string="route locale" />
+    <highway type="unclassified" string="route non classifiée" />
+    <highway type="residential"  string="rue résidentielle" />
+    <highway type="service"      string="rue de service" />
+    <highway type="track"        string="chemin" />
+    <highway type="cycleway"     string="voie cyclable" />
+    <highway type="path"         string="sentier" />
+    <highway type="steps"        string="escalier" />
+    <highway type="ferry"        string="ferry" />
+
+    <!-- The type of route -->
+    <route type="shortest" string="le plus court" /> <!-- For the description and route name -->
+    <route type="quickest" string="le plus rapide" /> <!-- For the description and route name -->
+
+    <!-- HTML output -->
+    <output-html>
+      <waypoint type="waypoint"   string="Etape" />   <!-- For the chosen waypoints -->
+      <waypoint type="junction"   string="Croisement" />   <!-- For the interesting junctions -->
+      <waypoint type="roundabout" string="rond-point" /> <!-- For roundabouts -->
+
+      <title text="Itinéraire %s" /> <!-- %s = [shortest|quickest] -->
+
+      <start   string="Débute"  text="à %s, direction %s" />                  <!-- 1st %s = [waypoint|junction], 2nd %s = [heading] -->
+      <node    string="à"     text="%s, aller %s direction %s" />            <!-- 1st %s = [waypoint|junction], 2nd %s = [turn], 3rd %s = [heading] -->
+      <rbnode  string="Quitter"  text="%s, prendre le %s sortir direction %s" /> <!-- 1st %s = [roundabout], 2nd %s = [first|second|...], 3rd %s = [heading] -->
+      <segment string="Suivre" text="%s pendant %.3f km, %.1f min" />        <!-- 1st %s = street name -->
+      <stop    string="S'arrêter"   text="à %s" />                           <!-- 1st %s = [waypoint|junction] -->
+      <total   string="Total"  text="%.1f km, %.0f minutes" />
+    </output-html>
+
+    <!-- GPX output -->
+    <output-gpx>
+      <waypoint type="start"  string="DEBUT" /> <!-- For the first route waypoint -->
+      <waypoint type="inter"  string="INTER" /> <!-- For the intermediate route waypoints -->
+      <waypoint type="trip"   string="POINT"  /> <!-- For the other route points -->
+      <waypoint type="finish" string="FINAL"/> <!-- For the last route waypoint -->
+
+      <desc  text="Itinéraire %s entre les étapes 'début' et 'fin' " /> <!-- %s = [shortest|quickest] -->
+      <name  text="Itinéraire %s" />                                        <!-- %s = [shortest|quickest] -->
+      <step  text="%s sur '%s' pendant %.3f km, %.1f min" />                <!-- 1st %s = [turn], 2nd %s = street name -->
+      <final text="Trajet total %.1f km, %.0f minutes" />
+    </output-gpx>
+
+  </language>
+
   <!-- Dutch translation by Jan Jansen (August 2010) -->
 
   <language lang="nl">
