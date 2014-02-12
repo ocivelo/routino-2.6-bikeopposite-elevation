@@ -472,7 +472,7 @@ SegmentsX *SplitWays(WaysX *waysx,NodesX *nodesx,int keep)
 #endif
 			}
 
-          AppendSegmentList(segmentsx,i,previndex,index,segment_flags,0,0,0,0);
+          AppendSegmentList(segmentsx,i,previndex,index,segment_flags,0,0);
          }
 
        prevnode=node;

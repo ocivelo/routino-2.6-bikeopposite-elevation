@@ -276,11 +276,11 @@ duration_t Duration(index_t node, Segment *segmentp,Way *wayp,Profile *profile,s
     else
        *pspeedresult=speed2;
    }
- if (profile->allow != Transports_Bicycle || (wayp->incline == 0 && segmentp->ascentOn == 0 && segmentp->descentOn == 0))   
+ if (profile->allow != Transports_Bicycle || (wayp->incline == 0 && segmentp->percentascent == 0 && segmentp->percentdescent == 0))   
    return distance_speed_to_duration(distance,*pspeedresult);
    
 #if DEBUG
-   printf("    incline=%d  node=%"Pindex_t" seg->node1=%"Pindex_t" seg->node2=%"Pindex_t" ascentOn=%0.4f descentOn=%04f descent=%f distx=%08x\n",wayp->incline,node,segmentp->node1,segmentp->node2,segmentp->ascentOn,segmentp->descentOn,segmentp->descent,segmentp->distance );
+   printf("    incline=%d  node=%"Pindex_t" seg->node1=%"Pindex_t" seg->node2=%"Pindex_t" percentascent=%f percentdescent=%f distx=%08x\n",wayp->incline,node,segmentp->node1,segmentp->node2,segmentp->percentascent,segmentp->percentdescent,segmentp->descent,segmentp->distance );
 #endif
  if (wayp->incline != 0)
    {
@@ -308,10 +308,10 @@ duration_t Duration(index_t node, Segment *segmentp,Way *wayp,Profile *profile,s
  else
    {
 	float    percent=0;   
-	if (segmentp->node1 == node && segmentp->ascentOn > 0) 
-      percent = segmentp->ascent/segmentp->ascentOn*100;
-	if (segmentp->node2 == node && segmentp->descentOn > 0) 
-      percent = segmentp->descent/segmentp->descentOn*100;
+	if (segmentp->node1 == node && segmentp->percentascent > 0) 
+      percent = segmentp->percentascent - segmentp->percentdescent;
+	if (segmentp->node2 == node && segmentp->percentdescent > 0) 
+      percent = segmentp->percentdescent - segmentp->percentascent;
 
     if(percent < 5) 
       return distance_speed_to_duration(distance,*pspeedresult);

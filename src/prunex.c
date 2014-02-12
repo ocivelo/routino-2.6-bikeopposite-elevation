@@ -1296,12 +1296,9 @@ static void modify_segment(SegmentsX *segmentsx,SegmentX *segmentx,index_t newno
     newnode2=temp;
     
     float tmp;
-    tmp=segmentx->ascent;
-    segmentx->ascent=segmentx->descent;
-    segmentx->descent = tmp;
-    tmp=segmentx->ascentOn;
-    segmentx->ascentOn=segmentx->descentOn;
-    segmentx->descentOn=tmp;    
+    tmp=segmentx->percentascent;
+    segmentx->percentascent=segmentx->percentdescent;
+    segmentx->percentdescent = tmp;
    }
 
  if(newnode1!=segmentx->node1)

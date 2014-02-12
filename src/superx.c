@@ -318,7 +318,7 @@ SegmentsX *CreateSuperSegments(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx)
 #endif
 			         }
 
-                   AppendSegmentList(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score)|segment_flags, result->ascent, result->descent, result->ascentOn, result->descentOn);
+                   AppendSegmentList(supersegmentsx,segmentx->way,i,result->node,DISTANCE((distance_t)result->score)|segment_flags, result->percentascent, result->percentdescent);
 
                    ss++;
                   }
@@ -433,7 +433,7 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
                (segmentx.node1>supersegmentx.node1))
          {
           /* mark as super-segment */
-          AppendSegmentList(mergedsegmentsx,supersegmentx.way,supersegmentx.node1,supersegmentx.node2,supersegmentx.distance|SEGMENT_SUPER,supersegmentx.ascent, supersegmentx.descent, supersegmentx.ascentOn, supersegmentx.descentOn);
+          AppendSegmentList(mergedsegmentsx,supersegmentx.way,supersegmentx.node1,supersegmentx.node2,supersegmentx.distance|SEGMENT_SUPER,supersegmentx.percentascent, supersegmentx.percentdescent);
           added++;
           j++;
          }
@@ -445,9 +445,9 @@ SegmentsX *MergeSuperSegments(SegmentsX *segmentsx,SegmentsX *supersegmentsx)
       }
 
     if(super)
-       AppendSegmentList(mergedsegmentsx,segmentx.way,segmentx.node1,segmentx.node2,segmentx.distance|SEGMENT_SUPER|SEGMENT_NORMAL, segmentx.ascent, segmentx.descent, segmentx.ascentOn, segmentx.descentOn);
+       AppendSegmentList(mergedsegmentsx,segmentx.way,segmentx.node1,segmentx.node2,segmentx.distance|SEGMENT_SUPER|SEGMENT_NORMAL, segmentx.percentascent, segmentx.percentdescent);
     else
-       AppendSegmentList(mergedsegmentsx,segmentx.way,segmentx.node1,segmentx.node2,segmentx.distance|SEGMENT_NORMAL, segmentx.ascent, segmentx.descent, segmentx.ascentOn, segmentx.descentOn);
+       AppendSegmentList(mergedsegmentsx,segmentx.way,segmentx.node1,segmentx.node2,segmentx.distance|SEGMENT_NORMAL, segmentx.percentascent, segmentx.percentdescent);
 
     if(!((i+1)%10000))
        printf_middle("Merging Segments: Segments=%"Pindex_t" Super=%"Pindex_t" Merged=%"Pindex_t" Added=%"Pindex_t,i+1,j,merged,added);
@@ -560,25 +560,17 @@ static Results *FindSuperRoutes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx
           result2->score=cumulative_distance;
           if (node1 == segmentx->node1) 
             {
-			 if (segmentx->ascent > result1->ascent && result1->descent == 0) 
-		        result2->ascent = segmentx->ascent;
-			 if (segmentx->ascentOn > result1->ascentOn && result1->descentOn == 0) 
-		        result2->ascentOn = segmentx->ascentOn;
-			 if (segmentx->descent > result1->descent && result1->ascent == 0) 
-		        result2->descent = segmentx->descent;
-			 if (segmentx->descentOn > result1->descentOn && result1->ascentOn == 0) 
-		        result2->descentOn = segmentx->descentOn;
+			 if (segmentx->percentascent > result1->percentascent) 
+		        result2->percentascent = segmentx->percentascent;
+			 if (segmentx->percentdescent > result1->percentdescent) 
+		        result2->percentdescent = segmentx->percentdescent;
 		    }
           else
             {
-			 if (segmentx->descent > result1->ascent && result1->descent == 0) 
-		        result2->ascent = segmentx->descent;
-			 if (segmentx->descentOn > result1->ascentOn && result1->descentOn == 0) 
-		        result2->ascentOn = segmentx->descentOn;
-			 if (segmentx->ascent > result1->descent && result1->ascent == 0) 
-		        result2->descent = segmentx->ascent;
-			 if (segmentx->descentOn > result1->ascentOn && result1->ascentOn == 0) 
-		        result2->descentOn = segmentx->ascentOn;
+			 if (segmentx->percentdescent > result1->percentascent ) 
+		        result2->percentascent = segmentx->percentdescent;
+			 if (segmentx->percentascent > result1->percentdescent) 
+		        result2->percentdescent = segmentx->percentascent;
 		    }
           /* don't route beyond a super-node. */
           if(!IsBitSet(nodesx->super,node2))
@@ -591,25 +583,17 @@ static Results *FindSuperRoutes(NodesX *nodesx,SegmentsX *segmentsx,WaysX *waysx
 
           if (node1 == segmentx->node1) 
             {
-			 if (segmentx->ascent > result1->ascent && result1->descent == 0) 
-		        result2->ascent = segmentx->ascent;
-			 if (segmentx->ascentOn > result1->ascentOn && result1->descentOn == 0) 
-		        result2->ascentOn = segmentx->ascentOn;
-			 if (segmentx->descent > result1->descent && result1->ascent == 0) 
-		        result2->descent = segmentx->descent;
-			 if (segmentx->descentOn > result1->descentOn && result1->ascentOn == 0) 
-		        result2->descentOn = segmentx->descentOn;
+			 if (segmentx->percentascent > result1->percentascent) 
+		        result2->percentascent = segmentx->percentascent;
+			 if (segmentx->percentdescent > result1->percentdescent) 
+		        result2->percentdescent = segmentx->percentdescent;
 		    }
           else
             {
-			 if (segmentx->descent > result1->ascent && result1->descent == 0) 
-		        result2->ascent = segmentx->descent;
-			 if (segmentx->descentOn > result1->ascentOn && result1->descentOn == 0) 
-		        result2->ascentOn = segmentx->descentOn;
-			 if (segmentx->ascent > result1->descent && result1->ascent == 0) 
-		        result2->descent = segmentx->ascent;
-			 if (segmentx->descentOn > result1->ascentOn && result1->ascentOn == 0) 
-		        result2->descentOn = segmentx->ascentOn;
+			 if (segmentx->percentdescent > result1->percentascent ) 
+		        result2->percentascent = segmentx->percentdescent;
+			 if (segmentx->percentascent > result1->percentdescent) 
+		        result2->percentdescent = segmentx->percentascent;
 		    }
 
           /* don't route beyond a super-node. */

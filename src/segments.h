@@ -49,10 +49,8 @@ struct _Segment
 
  distance_t distance;           /*+ The distance between the nodes. +*/
  
- float ascent;
- float descent;
- float ascentOn;
- float descentOn;
+ float percentascent;
+ float percentdescent;
 };
 
 
